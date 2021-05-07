@@ -65,11 +65,11 @@ for j in range(100):
         std = err * values[i] * np.random.rand()
 
         # add noise on location
-        loc = truncnorm.rvs(0.0, np.inf, loc=values[i], scale=std)
+        loc = truncnorm.rvs((minval - values[i]) / std, np.inf, loc=values[i], scale=std)
 
         samples.append(
             truncnorm.rvs(
-                0.0,
+                (minval - loc) / std,
                 np.inf,
                 loc=loc,
                 scale=std,
