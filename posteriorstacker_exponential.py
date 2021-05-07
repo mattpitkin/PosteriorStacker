@@ -62,12 +62,17 @@ for j in range(100):
     # create posterior samples - use truncated normal so values cannot be negative
 
     for i in range(len(values)):
+        std = err * values[i] * np.random.rand()
+
+        # add noise on location
+        loc = truncnorm.rvs(0.0, np.inf, loc=values[i], scale=std)
+
         samples.append(
             truncnorm.rvs(
                 0.0,
                 np.inf,
-                loc=values[i],
-                scale=(0.25 * values[i] * np.random.rand()),
+                loc=loc,
+                scale=std,
                 size=400,
             )
         )
