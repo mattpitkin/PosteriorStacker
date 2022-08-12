@@ -51,7 +51,12 @@ parser.add_argument('--name', type=str, default="Parameter", help="Parameter nam
 args = parser.parse_args()
 filename = args.filename
 
-data = np.loadtxt(filename)
+data = []
+with open(filename, "r") as fp:
+    for line in fp.readlines():
+        data.append([float(val.strip()) for val in line.strip().split()])
+
+#data = np.loadtxt(filename)
 Nobj, Nsamples = data.shape
 minval = args.low
 maxval = args.high
@@ -117,7 +122,7 @@ def normal_pdf(x, mean, std):
 def glikelihood(params):
     """Gaussian sample distribution"""
     mean, std = params
-    return np.log(normal_pdf(data, mean, std).mean(axis=1) + 1e-300).sum()
+    return np.log([normal_pdf(row, mean, std).mean() + 1e-300 for row in data]).sum()
 
 def gtransform(cube):
     """Gaussian sample distribution priors"""
@@ -133,12 +138,12 @@ gresult = gsampler.run(frac_remain=0.5, viz_callback=viz_callback)
 gsampler.print_results()
 
 
-avg_mean, avg_std = gresult['samples'].mean(axis=0)
-N_resolved = np.logical_and(data > avg_mean - 5 * avg_std, data < avg_mean + 5 * avg_std).sum(axis=1)
-import warnings
-N_undersampled = (N_resolved < 20).sum()
-if N_undersampled > 0:
-    warnings.warn("std may be over-estimated: too few samples to resolve the distribution in %d objects." % N_undersampled)
+#avg_mean, avg_std = gresult['samples'].mean(axis=0)
+#N_resolved = np.logical_and(data > avg_mean - 5 * avg_std, data < avg_mean + 5 * avg_std).sum(axis=1)
+#import warnings
+#N_undersampled = (N_resolved < 20).sum()
+#if N_undersampled > 0:
+#    warnings.warn("std may be over-estimated: too few samples to resolve the distribution in %d objects." % N_undersampled)
 
 print()
 print("Vary the number of samples to check numerical stability!")
